@@ -2,38 +2,40 @@
 
 #include "include/u-gine.h"
 
-const double minScale = 0.5;
-const double maxScale = 5.0;
+const uint16 screenX = 800;
+const uint16 screenY = 600;
+const uint16 midScreenX = screenX / 2;
+const uint16 midScreenY = screenY / 2;
+const int32 newAngle = 15;
+const double rAngle = 345;
+const double lAngle = 15;
+const double speedAngle = 15;
+const double speedMove = 30;
 
 int main(int argc, char* argv[]) {
 	Screen& screen = Screen::Instance();
-	screen.Open(800, 600, false);
+	screen.Open(screenX, screenY, false);
+	glfwSetMousePos(midScreenX, midScreenY);
 
-	//Sprite mySprite(ResourceManager::Instance().LoadImage("data/ball.png"));
-	Sprite mySprite(ResourceManager::Instance().LoadImage("data/soccer_npot.png"));
-	mySprite.SetBlendMode(Renderer::BlendMode::SOLID);
-	mySprite.SetPosition(400, 300);
-
-	double ang = 0;
-	const double incAng = 30;
-	double scale = 1;
-	const double incScale = 2;
-	int16 stateScale = 1;
+	Sprite mySprite(ResourceManager::Instance().LoadImage("data/alien.png"));
+	mySprite.SetBlendMode(Renderer::BlendMode::ALPHA);
+	mySprite.SetPosition(midScreenX, midScreenY);
 
 	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC))
 	{
-		ang = WrapValue(ang + incAng * Screen::Instance().ElapsedTime(), 360);
-		if (minScale < scale && stateScale == -1)
-			scale = scale - incScale * Screen::Instance().ElapsedTime();
-		else if (scale < maxScale && stateScale == 1)
-			scale = scale + incScale * Screen::Instance().ElapsedTime();
-		else
-			stateScale = -stateScale;
+		if (mySprite.GetX() != screen.GetMouseX() || mySprite.GetY() != screen.GetMouseY())
+		{
+			if (mySprite.GetX() < screen.GetMouseX())
+				mySprite.RotateTo(-newAngle, speedAngle);
+			else if (screen.GetMouseX() < mySprite.GetX())
+				mySprite.RotateTo(newAngle, speedAngle);
+			else
+				mySprite.RotateTo(0, speedAngle);
+			//mySprite.MoveTo((double)screen.GetMouseX(), (double)screen.GetMouseY(), speedMove);
+		}
+		mySprite.Update(screen.ElapsedTime());
 
-		mySprite.SetAngle(ang);
-		mySprite.SetScale(scale, scale);
-
-		Renderer::Instance().Clear(0, 0, 0);
+		Renderer::Instance().Clear(0, 0, 255);
 		mySprite.Render();
 
 		// Refrescamos la pantalla
