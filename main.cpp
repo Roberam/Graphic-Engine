@@ -2,33 +2,39 @@
 
 #include "include/u-gine.h"
 
-const double dimImage = 64;
-const double iniX = 10;
-const double iniY = 10;
-const int numModes = 6;
-GLenum modesX[numModes] = {GL_ZERO, GL_ONE, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
-GLenum modesY[numModes] = {GL_ZERO, GL_ONE, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
+const double minScale = 0.5;
+const double maxScale = 5.0;
 
 int main(int argc, char* argv[]) {
 	Screen& screen = Screen::Instance();
 	screen.Open(800, 600, false);
-	Image* imageWall = ResourceManager::Instance().LoadImage("data/box.jpg");
-	Image* imageLight = ResourceManager::Instance().LoadImage("data/light.png");
+
+	//Sprite mySprite(ResourceManager::Instance().LoadImage("data/ball.png"));
+	Sprite mySprite(ResourceManager::Instance().LoadImage("data/soccer_npot.png"));
+	mySprite.SetBlendMode(Renderer::BlendMode::SOLID);
+	mySprite.SetPosition(400, 300);
+
+	double ang = 0;
+	const double incAng = 30;
+	double scale = 1;
+	const double incScale = 2;
+	int16 stateScale = 1;
 
 	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC))
 	{
-		Renderer::Instance().SetBlendMode(Renderer::BlendMode::SOLID);
+		ang = WrapValue(ang + incAng * Screen::Instance().ElapsedTime(), 360);
+		if (minScale < scale && stateScale == -1)
+			scale = scale - incScale * Screen::Instance().ElapsedTime();
+		else if (scale < maxScale && stateScale == 1)
+			scale = scale + incScale * Screen::Instance().ElapsedTime();
+		else
+			stateScale = -stateScale;
+
+		mySprite.SetAngle(ang);
+		mySprite.SetScale(scale, scale);
+
 		Renderer::Instance().Clear(0, 0, 0);
-		for (int i = 0; i < numModes; i++)
-		{
-			for (int j = 0; j < numModes; j++)
-			{
-				Renderer::Instance().SetBlendMode(Renderer::BlendMode::SOLID);
-				Renderer::Instance().DrawImage(imageWall, i*dimImage + iniX, j*dimImage + iniY, 0, dimImage, dimImage, 0);
-				glBlendFunc(modesX[i], modesY[j]);
-				Renderer::Instance().DrawImage(imageLight, i*dimImage + iniX, j*dimImage + iniY, 0, dimImage, dimImage, 0);
-			}
-		}
+		mySprite.Render();
 
 		// Refrescamos la pantalla
 		screen.Refresh();
