@@ -30,8 +30,8 @@ Image::Image(const String &filename, uint16 hframes, uint16 vframes) {
 	if ( buffer ) {
 		width = (uint16)pwidth;
 		height = (uint16)pheight;
-		uint16 widthPro = pow(2, ceil(Log2(width)));
-		uint16 heightPro = pow(2, ceil(Log2(height)));
+		uint16 widthPro = (uint16)pow(2, ceil(Log2(width)));
+		uint16 heightPro = (uint16)pow(2, ceil(Log2(height)));
 		unsigned char* bufferPro = NULL;
 		if (width != widthPro || height != heightPro)
 		{

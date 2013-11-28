@@ -22,9 +22,8 @@ Sprite::Sprite(Image* image) {
 	animFPS = 0;
 	firstFrame = lastFrame = 0;
 	currentFrame = 0;
-	blendMode = Renderer::BlendMode::SOLID;
-	r = g = b = 0;
-	a = 255;
+	blendMode = Renderer::BlendMode::ALPHA;
+	r = g = b = a = 255;
 	collision = NULL;
 	colPixelData = NULL;
 	colSprite = NULL;
@@ -59,8 +58,8 @@ bool Sprite::CheckCollision(const Map* map) {
 */
 void Sprite::RotateTo(int32 angle, double speed) {
 	// TAREA: Implementar
-	toAngle = WrapValue(angle, 360);
-	if (toAngle - this->angle < this->angle - toAngle)
+	toAngle = (uint16)WrapValue(angle, 360);
+	if (WrapValue(toAngle - this->angle, 360) < WrapValue(this->angle - toAngle, 360))
 	{
 		anglesToRotate = WrapValue(toAngle - this->angle, 360);
 		rotatingSpeed = speed;
@@ -77,16 +76,23 @@ void Sprite::MoveTo(double x, double y, double speedX, double speedY) {
 	// TAREA: Implementar
 	toX = x;
 	toY = y;
-	prevX = this->x;
-	prevY = this->y;
-	movingSpeedX = speedX;
 	if (speedY == 0)
 	{
-		double time = toX / movingSpeedX;
-		movingSpeedY = toY / time;
+		double time = abs((toX - this->x) / speedX) + abs((toY - this->y) / speedX);
+		movingSpeedX = (toX - this->x) / time;
+		movingSpeedY = (toY - this->y) / time;
 	}
 	else
-		movingSpeedY = speedY;
+	{
+		if (toX < this->x)
+			movingSpeedX = -speedX;
+		else
+			movingSpeedX = speedX;
+		if (toY < this->y)
+			movingSpeedY = -speedY;
+		else
+			movingSpeedY = speedY;
+	}
 	moving = true;
 }
 
@@ -101,22 +107,25 @@ void Sprite::Update(double elapsed, const Map* map) {
 	if (rotating)
 	{
 		angle = WrapValue(angle + rotatingSpeed * elapsed, 360);
-		if (abs(toAngle - angle) > 0)
+		anglesToRotate = anglesToRotate - abs(rotatingSpeed) * elapsed;
+		if (anglesToRotate <= 0)
 			rotating = false;
 	}
-	else
-		rotating = false;
 
 	// TAREA: Actualizar movimiento animado
 	if (moving)
 	{
 		x = x + movingSpeedX * elapsed;
 		y = y + movingSpeedY * elapsed;
+		
+		if ((movingSpeedX < 0 && x <= toX) || (0 < movingSpeedX && toX <= x))
+			x = toX;
+		if ((movingSpeedY < 0 && y <= toY) || (0 < movingSpeedY && toY <= y))
+			y = toY;
+
 		if (x == toX && y == toY)
 			moving = false;
 	}
-	else
-		moving = false;
 
 	// Informacion final de colision
 	UpdateCollisionBox();
@@ -125,6 +134,7 @@ void Sprite::Update(double elapsed, const Map* map) {
 void Sprite::Render() const {
     // TAREA: Implementar
 	Renderer::Instance().SetBlendMode(blendMode);
+	Renderer::Instance().SetColor(r, g, b, a);
 	Renderer::Instance().DrawImage(image, x, y, 0, colwidth * scalex, colheight * scaley, angle);
 }
 
