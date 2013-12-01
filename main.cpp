@@ -5,15 +5,14 @@
 
 const uint16 screenX = 800;
 const uint16 screenY = 600;
-const uint16 midScreenX = screenX / 2;
-const uint16 midScreenY = screenY / 2;
-const uint16 rangeMin = 128;
-const uint16 rangeMax = 255;
+const uint16 speedMin = 128;
+const uint16 speedMax = 255;
+const uint8 alpha = 255;
 const uint16 colorMin = 0;
 const uint16 colorMax = 255;
 const double iniPosX = 200;
 const double iniPosY = 100;
-const String text = "Hola mundo";
+const String text = "Hola, mundo";
 
 uint16 Random(const uint16 min, const uint16 max)
 {
@@ -21,24 +20,25 @@ uint16 Random(const uint16 min, const uint16 max)
 }
 
 int main(int argc, char* argv[]) {
+	srand((uint32)time(NULL));
 	Screen& screen = Screen::Instance();
 	screen.Open(screenX, screenY, false);
 	Renderer::Instance().SetBlendMode(Renderer::BlendMode::ALPHA);
 	
-	Font* myImageFont = ResourceManager::Instance().LoadFont("data/monospaced.png");
-	srand((uint32)time(NULL));
-	int16 speedX = Random(rangeMin, rangeMax);
-	int16 speedY = Random(rangeMin, rangeMax);
+	Font* myImageFont = ResourceManager::Instance().LoadFont("data/arial16.png");
+	uint32 textWidth = myImageFont->GetTextWidth(text);
+	uint32 textHeight = myImageFont->GetTextHeight(text);
+	int16 speedX = Random(speedMin, speedMax);
+	int16 speedY = Random(speedMin, speedMax);
 	double posX = iniPosX;
 	double posY = iniPosY;
-	uint32 r = Random(colorMin, colorMax);
-	uint32 g = Random(colorMin, colorMax);
-	uint32 b = Random(colorMin, colorMax);
 	bool collides = false;
-	screen.Refresh();
 
 	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC) )
 	{
+		// Actualizamos la pantalla.
+		screen.Refresh();
+
 		// Limpiamos la pantalla.
 		Renderer::Instance().Clear(0, 0, 0);
 		
@@ -47,12 +47,12 @@ int main(int argc, char* argv[]) {
 		posY = posY + speedY * screen.ElapsedTime();
 
 		// Comprobamos colisiones.
-		if (posX <= 0 || screenX <= posX + myImageFont->GetTextWidth(text))
+		if (posX <= 0 || screenX <= posX + textWidth)
 		{
 			collides = true;
 			speedX = -speedX;
 		}
-		if (posY <= 0 || screenY <= posY + myImageFont->GetTextHeight(text))
+		if (posY <= 0 || screenY <= posY + textHeight)
 		{
 			collides = true;
 			speedY = -speedY;
@@ -61,16 +61,13 @@ int main(int argc, char* argv[]) {
 		// Mostramos texto.
 		if (collides)
 		{
-			r = Random(colorMin, colorMax);
-			g = Random(colorMin, colorMax);
-			b = Random(colorMin, colorMax);
-			Renderer::Instance().SetColor(r, g, b, 255);
+			uint8 r = Random(colorMin, colorMax);
+			uint8 g = Random(colorMin, colorMax);
+			uint8 b = Random(colorMin, colorMax);
+			Renderer::Instance().SetColor(r, g, b, alpha);
 			collides = false;
 		}
 		Renderer::Instance().DrawText(myImageFont, text, posX, posY);
-
-		// Actualizamos la pantalla.
-		screen.Refresh();
 	}
 
 	return 0;

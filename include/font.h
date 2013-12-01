@@ -4,11 +4,13 @@
 #include "string.h"
 #include "types.h"
 #include "image.h"
+#include "glyph.h"
 
 class Font : public Image
 {
 public:
 	Font(const String& filename);
+	virtual ~Font();
 
 	virtual uint16 GetSize() const;
 	virtual uint32 GetTextWidth(const String& text) const;
@@ -16,6 +18,7 @@ public:
 
 	virtual void Render(const String& text, double x, double y) const;
 private:
+	Array<Glyph> _glyphs;
 };
 
 #endif

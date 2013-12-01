@@ -3,7 +3,6 @@
 #include "../include/math.h"
 #include <math.h>
 #include <stdlib.h>
-//#include "../lib/stb_image.c"
 
 // TAREA: Declarar funciones de stb_image.c
 extern "C" unsigned char* stbi_load(const char* filename, int* x, int* y, int* comp, int req_comp);
