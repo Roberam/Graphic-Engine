@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
 	Renderer::Instance().SetBlendMode(Renderer::BlendMode::ALPHA);
 	
 	Font* myImageFont = ResourceManager::Instance().LoadFont("data/arial16.png");
+	//Font* myImageFont = ResourceManager::Instance().LoadFont("data/monospaced.png");
 	uint32 textWidth = myImageFont->GetTextWidth(text);
 	uint32 textHeight = myImageFont->GetTextHeight(text);
 	int16 speedX = Random(speedMin, speedMax);
@@ -61,14 +62,15 @@ int main(int argc, char* argv[]) {
 		// Mostramos texto.
 		if (collides)
 		{
-			uint8 r = Random(colorMin, colorMax);
-			uint8 g = Random(colorMin, colorMax);
-			uint8 b = Random(colorMin, colorMax);
+			uint8 r = (uint8)Random(colorMin, colorMax);
+			uint8 g = (uint8)Random(colorMin, colorMax);
+			uint8 b = (uint8)Random(colorMin, colorMax);
 			Renderer::Instance().SetColor(r, g, b, alpha);
 			collides = false;
 		}
 		Renderer::Instance().DrawText(myImageFont, text, posX, posY);
 	}
 
+	ResourceManager::Instance().FreeResources();
 	return 0;
 }
