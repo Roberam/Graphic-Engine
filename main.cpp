@@ -1,10 +1,15 @@
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
 #include "include/u-gine.h"
-#include <time.h>
+#include "include/InputManager.h"
 
 const uint16 screenX = 800;
 const uint16 screenY = 600;
+const uint16 midScreenX = screenX / 2;
+const uint16 midScreenY = screenY / 2;
+const uint16 speedSprite = 64;
+
+
 const uint16 speedMin = 128;
 const uint16 speedMax = 255;
 const uint8 alpha = 255;
@@ -12,7 +17,9 @@ const uint16 colorMin = 0;
 const uint16 colorMax = 255;
 const double iniPosX = 200;
 const double iniPosY = 100;
-const String text = "Hola, mundo";
+const String text = "Hola, ñundo";
+
+void UpdateMove(
 
 uint16 Random(const uint16 min, const uint16 max)
 {
@@ -20,11 +27,39 @@ uint16 Random(const uint16 min, const uint16 max)
 }
 
 int main(int argc, char* argv[]) {
-	srand((uint32)time(NULL));
 	Screen& screen = Screen::Instance();
 	screen.Open(screenX, screenY, false);
-	Renderer::Instance().SetBlendMode(Renderer::BlendMode::ALPHA);
+	screen.Refresh();
 	
+	Renderer::Instance().SetBlendMode(Renderer::BlendMode::ALPHA);
+	Image* myImage = ResourceManager::Instance().LoadImage("data/background.png");
+	Scene myScene(myImage);
+	Camera* myCamera = &myScene.GetCamera();
+	myCamera->SetBounds(0, 0, myImage->GetWidth(), myImage->GetHeight());
+	Sprite mySprite = ResourceManager::Instance().LoadImage("data/alien.png");
+	mySprite.SetPosition(midScreenX, midScreenY);
+
+	InputManager myInput = InputManager();
+
+	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC) )
+	{
+		// Actualizamos la pantalla.
+		screen.Refresh();
+		myInput.Update();
+
+		// Actualizamos movimiento.
+		UpdateMove(mySprite);
+	}
+
+	ResourceManager::Instance().FreeResources();
+	return 0;
+}
+
+
+
+
+
+/*
 	Font* myImageFont = ResourceManager::Instance().LoadFont("data/arial16.png");
 	//Font* myImageFont = ResourceManager::Instance().LoadFont("data/monospaced.png");
 	uint32 textWidth = myImageFont->GetTextWidth(text);
@@ -74,3 +109,4 @@ int main(int argc, char* argv[]) {
 	ResourceManager::Instance().FreeResources();
 	return 0;
 }
+*/

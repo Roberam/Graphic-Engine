@@ -115,7 +115,7 @@ uint32 Font::GetTextWidth(const String& text) const
 	if (_glyphs.Size() > 0)
 	{
 		for (int i = 0; i < text.Length(); i++)
-			width = width + _glyphs[text[i]].GetFinX() - _glyphs[text[i]].GetIniX();
+			width = width + _glyphs[(unsigned char)text[i]].GetFinX() - _glyphs[(unsigned char)text[i]].GetIniX();
 	}
 	else
 		width = text.Length() * Image::GetWidth();
@@ -131,7 +131,7 @@ uint32 Font::GetTextHeight(const String& text) const
 	{
 		for (int i = 0; i < text.Length(); i++)
 		{
-			uint32 newHeight = _glyphs[text[i]].GetFinY() - _glyphs[text[i]].GetIniY();
+			uint32 newHeight = _glyphs[(unsigned char)text[i]].GetFinY() - _glyphs[(unsigned char)text[i]].GetIniY();
 			if (height <= newHeight)
 				height = newHeight;
 		}
@@ -148,9 +148,9 @@ void Font::Render(const String& text, double x, double y) const
 	uint16 offset = 0;
 	for (uint16 i = 0; i < length; i++)
 	{
-		Renderer::Instance().DrawImage(this, x + offset, y, text[i], Image::GetWidth(), Image::GetHeight());
+		Renderer::Instance().DrawImage(this, x + offset, y, (unsigned char)text[i], Image::GetWidth(), Image::GetHeight());
 		if (_glyphs.Size() > 0)
-			offset = offset + _glyphs[text[i]].GetFinX() - _glyphs[text[i]].GetIniX();
+			offset = offset + _glyphs[(unsigned char)text[i]].GetFinX() - _glyphs[(unsigned char)text[i]].GetIniX();
 		else
 			offset = offset + Image::GetWidth();
 	}
