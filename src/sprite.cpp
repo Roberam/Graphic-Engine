@@ -74,26 +74,31 @@ void Sprite::RotateTo(int32 angle, double speed) {
 
 void Sprite::MoveTo(double x, double y, double speedX, double speedY) {
 	// TAREA: Implementar
-	toX = x;
-	toY = y;
-	if (speedY == 0)
-	{
-		double time = abs((toX - this->x) / speedX) + abs((toY - this->y) / speedX);
-		movingSpeedX = (toX - this->x) / time;
-		movingSpeedY = (toY - this->y) / time;
-	}
+	if (this->x == x && this->y == y)
+		moving = false;
 	else
 	{
-		if (toX < this->x)
-			movingSpeedX = -speedX;
+		toX = x;
+		toY = y;
+		if (speedY == 0)
+		{
+			double time = abs((toX - this->x) / speedX) + abs((toY - this->y) / speedX);
+			movingSpeedX = (toX - this->x) / time;
+			movingSpeedY = (toY - this->y) / time;
+		}
 		else
-			movingSpeedX = speedX;
-		if (toY < this->y)
-			movingSpeedY = -speedY;
-		else
-			movingSpeedY = speedY;
+		{
+			if (toX < this->x)
+				movingSpeedX = -speedX;
+			else
+				movingSpeedX = speedX;
+			if (toY < this->y)
+				movingSpeedY = -speedY;
+			else
+				movingSpeedY = speedY;
+		}
+		moving = true;
 	}
-	moving = true;
 }
 
 void Sprite::Update(double elapsed, const Map* map) {

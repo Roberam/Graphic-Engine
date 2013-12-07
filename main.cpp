@@ -7,19 +7,15 @@ const uint16 screenX = 800;
 const uint16 screenY = 600;
 const uint16 midScreenX = screenX / 2;
 const uint16 midScreenY = screenY / 2;
-const uint16 speedSprite = 64;
 
+const int16 moveSpeed = 256;
+const int32 spriteAngle = 15;
+const double angleSpeed = 30;
 
-const uint16 speedMin = 128;
-const uint16 speedMax = 255;
-const uint8 alpha = 255;
-const uint16 colorMin = 0;
-const uint16 colorMax = 255;
-const double iniPosX = 200;
-const double iniPosY = 100;
-const String text = "Hola, ñundo";
-
-void UpdateMove(
+const String UP = "ARRIBA";
+const String DOWN = "ABAJO";
+const String LEFT = "IZQUIERDA";
+const String RIGHT = "DERECHA";
 
 uint16 Random(const uint16 min, const uint16 max)
 {
@@ -32,23 +28,82 @@ int main(int argc, char* argv[]) {
 	screen.Refresh();
 	
 	Renderer::Instance().SetBlendMode(Renderer::BlendMode::ALPHA);
-	Image* myImage = ResourceManager::Instance().LoadImage("data/background.png");
-	Scene myScene(myImage);
+	Image* myBackground = ResourceManager::Instance().LoadImage("data/background.png");
+	Scene myScene;
+	myScene.SetBackgroundImage(myBackground);
+
+	Image* myAlien = ResourceManager::Instance().LoadImage("data/alien.png");
+	Sprite* myAlienSprite = myScene.CreateSprite(myAlien);
+	myAlienSprite->SetPosition(midScreenX, midScreenY);
+
 	Camera* myCamera = &myScene.GetCamera();
-	myCamera->SetBounds(0, 0, myImage->GetWidth(), myImage->GetHeight());
-	Sprite mySprite = ResourceManager::Instance().LoadImage("data/alien.png");
-	mySprite.SetPosition(midScreenX, midScreenY);
+	myCamera->SetBounds(0, 0, myBackground->GetWidth(), myBackground->GetHeight());
+	myCamera->FollowSprite(myAlienSprite);
 
 	InputManager myInput = InputManager();
+	myInput.CreateVirtualButton(UP, Key_W);
+	myInput.CreateVirtualButton(DOWN, Key_S);
+	myInput.CreateVirtualButton(LEFT, Key_A);
+	myInput.CreateVirtualButton(RIGHT, Key_D);
 
 	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC) )
 	{
-		// Actualizamos la pantalla.
+		// Actualizamos la pantalla, la escena, el sprite y la entrada.
 		screen.Refresh();
+		myScene.Update(screen.ElapsedTime());
 		myInput.Update();
 
 		// Actualizamos movimiento.
-		UpdateMove(mySprite);
+		double xAlien = myAlienSprite->GetX();
+		double yAlien = myAlienSprite->GetY();
+		if (myInput.IsVirtualButtonPressed(UP) && myInput.IsVirtualButtonPressed(RIGHT))
+		{
+			myAlienSprite->MoveTo(xAlien + moveSpeed, yAlien - moveSpeed, moveSpeed);
+			myAlienSprite->RotateTo(-spriteAngle, angleSpeed);
+		}
+		else if (myInput.IsVirtualButtonPressed(UP) && myInput.IsVirtualButtonPressed(LEFT))
+		{
+			myAlienSprite->MoveTo(xAlien - moveSpeed, yAlien - moveSpeed, moveSpeed);
+			myAlienSprite->RotateTo(spriteAngle, angleSpeed);
+		}
+		else if (myInput.IsVirtualButtonPressed(DOWN) && myInput.IsVirtualButtonPressed(RIGHT))
+		{
+			myAlienSprite->MoveTo(xAlien + moveSpeed, yAlien + moveSpeed, moveSpeed);
+			myAlienSprite->RotateTo(-spriteAngle, angleSpeed);
+		}
+		else if (myInput.IsVirtualButtonPressed(DOWN) && myInput.IsVirtualButtonPressed(LEFT))
+		{
+			myAlienSprite->MoveTo(xAlien - moveSpeed, yAlien + moveSpeed, moveSpeed);
+			myAlienSprite->RotateTo(spriteAngle, angleSpeed);
+		}
+		else if(myInput.IsVirtualButtonPressed(UP))
+		{
+			myAlienSprite->MoveTo(xAlien, yAlien - moveSpeed, moveSpeed);
+			myAlienSprite->RotateTo(0, angleSpeed);
+		}
+		else if(myInput.IsVirtualButtonPressed(DOWN))
+		{
+			myAlienSprite->MoveTo(xAlien, yAlien + moveSpeed, moveSpeed);
+			myAlienSprite->RotateTo(0, angleSpeed);
+		}
+		else if(myInput.IsVirtualButtonPressed(LEFT))
+		{
+			myAlienSprite->MoveTo(xAlien - moveSpeed, yAlien, moveSpeed);
+			myAlienSprite->RotateTo(spriteAngle, angleSpeed);
+		}
+		else if(myInput.IsVirtualButtonPressed(RIGHT))
+		{
+			myAlienSprite->MoveTo(xAlien + moveSpeed, yAlien, moveSpeed);
+			myAlienSprite->RotateTo(-spriteAngle, angleSpeed);
+		}
+		else
+		{
+			myAlienSprite->MoveTo(xAlien, yAlien, moveSpeed);
+			myAlienSprite->RotateTo(0, angleSpeed);
+		}
+
+		// Mostramos por pantalla.
+		myScene.Render();
 	}
 
 	ResourceManager::Instance().FreeResources();

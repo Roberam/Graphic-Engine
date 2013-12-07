@@ -2,8 +2,8 @@
 #include "../include/screen.h"
 #include "../include/types.h"
 
-#define vWidth Screen::Instance().GetDesktopWidth()
-#define vHeight Screen::Instance().GetDesktopHeight()
+#define vWidth Screen::Instance().GetWidth()
+#define vHeight Screen::Instance().GetHeight()
 
 Camera::Camera()
 {
@@ -20,13 +20,25 @@ void Camera::SetPosition(double x, double y)
 
 void Camera::SetX(double x)
 {
-	if (boundx0 <= x && x + vWidth <= boundx1)
+	if (!HasBounds())
+		this->x = x;
+	else if (x < GetMinX())
+		this->x = GetMinX();
+	else if (x > GetMaxX())
+		this->x = GetMaxX();
+	else
 		this->x = x;
 }
 
 void Camera::SetY(double y)
 {
-	if (boundy0 <= y && y + vHeight <= boundy1)
+	if (!HasBounds())
+		this->y = y;
+	else if (y < GetMinY())
+		this->y = GetMinY();
+	else if (y > GetMaxY())
+		this->y = GetMaxY();
+	else
 		this->y = y;
 }
 
@@ -68,12 +80,12 @@ double Camera::GetMinY() const
 
 double Camera::GetMaxX() const
 {
-	return boundx1;
+	return boundx1 - vWidth;
 }
 
 double Camera::GetMaxY() const
 {
-	return boundy1;
+	return boundy1 - vHeight;
 }
 
 void Camera::FollowSprite(Sprite* sprite)
