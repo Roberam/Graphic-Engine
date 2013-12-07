@@ -95,6 +95,6 @@ void Camera::FollowSprite(Sprite* sprite)
 
 void Camera::Update()
 {
-	if (followingSprite && HasBounds())
+	if (followingSprite)
 		SetPosition(followingSprite->GetX() - (vWidth / 2), followingSprite->GetY() - (vHeight / 2));
 }

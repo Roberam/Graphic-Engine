@@ -8,6 +8,15 @@ const uint16 screenY = 600;
 const uint16 midScreenX = screenX / 2;
 const uint16 midScreenY = screenY / 2;
 
+const double backMoveX = 32;
+const double backMoveY = 32;
+const double backRelX = 0.8;
+const double backRelY = 0.8;
+const double frontMoveX = -32;
+const double frontMoveY = 32;
+const double frontRelX = 1;
+const double frontRelY = 1;
+
 const int16 moveSpeed = 256;
 const int32 spriteAngle = 15;
 const double angleSpeed = 30;
@@ -24,21 +33,27 @@ uint16 Random(const uint16 min, const uint16 max)
 
 int main(int argc, char* argv[]) {
 	Screen& screen = Screen::Instance();
+	const Renderer& render = Renderer::Instance();
+	ResourceManager& rm = ResourceManager::Instance();
+
 	screen.Open(screenX, screenY, false);
 	screen.Refresh();
-	
-	Renderer::Instance().SetBlendMode(Renderer::BlendMode::ALPHA);
-	Image* myBackground = ResourceManager::Instance().LoadImage("data/background.png");
-	Scene myScene;
-	myScene.SetBackgroundImage(myBackground);
+	render.SetBlendMode(Renderer::BlendMode::ALPHA);
 
-	Image* myAlien = ResourceManager::Instance().LoadImage("data/alien.png");
-	Sprite* myAlienSprite = myScene.CreateSprite(myAlien);
-	myAlienSprite->SetPosition(midScreenX, midScreenY);
+	Image* backLayer = rm.LoadImage("data/backlayer.png");
+	Image* frontLayer = rm.LoadImage("data/frontlayer.png");
+	ParallaxScene myScene = ParallaxScene(backLayer, frontLayer);
+	myScene.SetAutoBackSpeed(backMoveX, backMoveY);
+	myScene.SetAutoFrontSpeed(frontMoveX, frontMoveY);
+	myScene.SetRelativeBackSpeed(backRelX, backRelY);
+	myScene.SetRelativeFrontSpeed(frontRelX, frontRelY);
 
-	Camera* myCamera = &myScene.GetCamera();
-	myCamera->SetBounds(0, 0, myBackground->GetWidth(), myBackground->GetHeight());
-	myCamera->FollowSprite(myAlienSprite);
+	Image* alien = rm.LoadImage("data/alien.png");
+	Sprite* myAlien = myScene.CreateSprite(alien);
+	myAlien->SetPosition(midScreenX, midScreenY);
+	myScene.GetCamera().FollowSprite(myAlien);
+	double xAlien = myAlien->GetX();
+	double yAlien = myAlien->GetY();
 
 	InputManager myInput = InputManager();
 	myInput.CreateVirtualButton(UP, Key_W);
@@ -48,120 +63,64 @@ int main(int argc, char* argv[]) {
 
 	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC) )
 	{
-		// Actualizamos la pantalla, la escena, el sprite y la entrada.
+		// Actualizamos la pantalla, la escena y la entrada.
 		screen.Refresh();
 		myScene.Update(screen.ElapsedTime());
 		myInput.Update();
 
 		// Actualizamos movimiento.
-		double xAlien = myAlienSprite->GetX();
-		double yAlien = myAlienSprite->GetY();
+		xAlien = myAlien->GetX();
+		yAlien = myAlien->GetY();
 		if (myInput.IsVirtualButtonPressed(UP) && myInput.IsVirtualButtonPressed(RIGHT))
 		{
-			myAlienSprite->MoveTo(xAlien + moveSpeed, yAlien - moveSpeed, moveSpeed);
-			myAlienSprite->RotateTo(-spriteAngle, angleSpeed);
+			myAlien->MoveTo(xAlien + moveSpeed, yAlien - moveSpeed, moveSpeed);
+			myAlien->RotateTo(-spriteAngle, angleSpeed);
 		}
 		else if (myInput.IsVirtualButtonPressed(UP) && myInput.IsVirtualButtonPressed(LEFT))
 		{
-			myAlienSprite->MoveTo(xAlien - moveSpeed, yAlien - moveSpeed, moveSpeed);
-			myAlienSprite->RotateTo(spriteAngle, angleSpeed);
+			myAlien->MoveTo(xAlien - moveSpeed, yAlien - moveSpeed, moveSpeed);
+			myAlien->RotateTo(spriteAngle, angleSpeed);
 		}
 		else if (myInput.IsVirtualButtonPressed(DOWN) && myInput.IsVirtualButtonPressed(RIGHT))
 		{
-			myAlienSprite->MoveTo(xAlien + moveSpeed, yAlien + moveSpeed, moveSpeed);
-			myAlienSprite->RotateTo(-spriteAngle, angleSpeed);
+			myAlien->MoveTo(xAlien + moveSpeed, yAlien + moveSpeed, moveSpeed);
+			myAlien->RotateTo(-spriteAngle, angleSpeed);
 		}
 		else if (myInput.IsVirtualButtonPressed(DOWN) && myInput.IsVirtualButtonPressed(LEFT))
 		{
-			myAlienSprite->MoveTo(xAlien - moveSpeed, yAlien + moveSpeed, moveSpeed);
-			myAlienSprite->RotateTo(spriteAngle, angleSpeed);
+			myAlien->MoveTo(xAlien - moveSpeed, yAlien + moveSpeed, moveSpeed);
+			myAlien->RotateTo(spriteAngle, angleSpeed);
 		}
 		else if(myInput.IsVirtualButtonPressed(UP))
 		{
-			myAlienSprite->MoveTo(xAlien, yAlien - moveSpeed, moveSpeed);
-			myAlienSprite->RotateTo(0, angleSpeed);
+			myAlien->MoveTo(xAlien, yAlien - moveSpeed, moveSpeed);
+			myAlien->RotateTo(0, angleSpeed);
 		}
 		else if(myInput.IsVirtualButtonPressed(DOWN))
 		{
-			myAlienSprite->MoveTo(xAlien, yAlien + moveSpeed, moveSpeed);
-			myAlienSprite->RotateTo(0, angleSpeed);
+			myAlien->MoveTo(xAlien, yAlien + moveSpeed, moveSpeed);
+			myAlien->RotateTo(0, angleSpeed);
 		}
 		else if(myInput.IsVirtualButtonPressed(LEFT))
 		{
-			myAlienSprite->MoveTo(xAlien - moveSpeed, yAlien, moveSpeed);
-			myAlienSprite->RotateTo(spriteAngle, angleSpeed);
+			myAlien->MoveTo(xAlien - moveSpeed, yAlien, moveSpeed);
+			myAlien->RotateTo(spriteAngle, angleSpeed);
 		}
 		else if(myInput.IsVirtualButtonPressed(RIGHT))
 		{
-			myAlienSprite->MoveTo(xAlien + moveSpeed, yAlien, moveSpeed);
-			myAlienSprite->RotateTo(-spriteAngle, angleSpeed);
+			myAlien->MoveTo(xAlien + moveSpeed, yAlien, moveSpeed);
+			myAlien->RotateTo(-spriteAngle, angleSpeed);
 		}
 		else
 		{
-			myAlienSprite->MoveTo(xAlien, yAlien, moveSpeed);
-			myAlienSprite->RotateTo(0, angleSpeed);
+			myAlien->MoveTo(xAlien, yAlien, moveSpeed);
+			myAlien->RotateTo(0, angleSpeed);
 		}
 
 		// Mostramos por pantalla.
 		myScene.Render();
 	}
 
-	ResourceManager::Instance().FreeResources();
+	rm.FreeResources();
 	return 0;
 }
-
-
-
-
-
-/*
-	Font* myImageFont = ResourceManager::Instance().LoadFont("data/arial16.png");
-	//Font* myImageFont = ResourceManager::Instance().LoadFont("data/monospaced.png");
-	uint32 textWidth = myImageFont->GetTextWidth(text);
-	uint32 textHeight = myImageFont->GetTextHeight(text);
-	int16 speedX = Random(speedMin, speedMax);
-	int16 speedY = Random(speedMin, speedMax);
-	double posX = iniPosX;
-	double posY = iniPosY;
-	bool collides = false;
-
-	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC) )
-	{
-		// Actualizamos la pantalla.
-		screen.Refresh();
-
-		// Limpiamos la pantalla.
-		Renderer::Instance().Clear(0, 0, 0);
-		
-		//Actualizamos movimiento.
-		posX = posX + speedX * screen.ElapsedTime();
-		posY = posY + speedY * screen.ElapsedTime();
-
-		// Comprobamos colisiones.
-		if (posX <= 0 || screenX <= posX + textWidth)
-		{
-			collides = true;
-			speedX = -speedX;
-		}
-		if (posY <= 0 || screenY <= posY + textHeight)
-		{
-			collides = true;
-			speedY = -speedY;
-		}
-		
-		// Mostramos texto.
-		if (collides)
-		{
-			uint8 r = (uint8)Random(colorMin, colorMax);
-			uint8 g = (uint8)Random(colorMin, colorMax);
-			uint8 b = (uint8)Random(colorMin, colorMax);
-			Renderer::Instance().SetColor(r, g, b, alpha);
-			collides = false;
-		}
-		Renderer::Instance().DrawText(myImageFont, text, posX, posY);
-	}
-
-	ResourceManager::Instance().FreeResources();
-	return 0;
-}
-*/
