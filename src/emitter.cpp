@@ -5,16 +5,10 @@
 #include "../include/array.h"
 #include "../include/math.h"
 
-bool IsLessTimeFunction(Particle& p1, Particle& p2)
-{
-	return p1.GetLifetime() <= p2.GetLifetime();
-}
-
-//bool (*IsLessTime)(Particle&, Particle&) = &IsLessTimeFunction;
-
 Emitter::Emitter(Image* image, bool autofade)
 {
 	this->image = image;
+	this->image->SetMidHandle();
 	this->autofade = autofade;
 	x = y = 0;
 	minrate = maxrate = 0;
@@ -136,17 +130,18 @@ bool Emitter::IsEmitting() const
 
 void Emitter::Update(double elapsed)
 {
+	Array<uint32> toDelete = Array<uint32>();
+
 	if (emitting)
 	{
-		double rate = Random(minrate, maxrate);
-		uint8 r, g, b = 0;
-		double velx, vely = 0;
+		uint8 r = 0, g = 0, b = 0;
+		double velx = 0, vely = 0;
 		double angvel = 0;
 		double lifetime = 0;
-		Particle p;
 
 		// Incrementamos la lista de particulas.
-		for (int i = 0; i < rate; i++)
+		uint32 rate = (uint32)(Random(minrate, maxrate) * elapsed);
+		for (uint32 i = 0; i < rate; i++)
 		{
 			r = (uint8)Random(minr, maxr);
 			g = (uint8)Random(ming, maxg);
@@ -155,25 +150,25 @@ void Emitter::Update(double elapsed)
 			vely = Random(minvely, maxvely);
 			angvel = Random(minangvel, maxangvel);
 			lifetime = Random(minlifetime, maxlifetime);
-			p = Particle(image, velx, vely, angvel, lifetime, autofade);
+			Particle p = Particle(image, velx, vely, angvel, lifetime, autofade);
 			p.SetBlendMode(blendMode);
 			p.SetColor(r, g, b);
 			p.SetPosition(x, y);
 			particles.Add(p);
 		}
-
-		// Reordenamos la lista de particulas.
-		particles.Sort(&IsLessTimeFunction);
 	}
 
 	// Actualizamos la lista de particulas.
 	for (uint32 i = 0; i < particles.Size(); i++)
+	{
 		particles[i].Update(elapsed);
+		if (particles[i].GetLifetime() <= 0)
+			toDelete.Add(i);
+	}
 
 	// Eliminamos las particulas cuyo lifetime haya expirado.
-	for (uint32 i = 0; i < particles.Size(); i++)
-		if (particles[i].GetLifetime() <= 0)
-			particles.RemoveAt(i);
+	for (uint32 i = 0; i < toDelete.Size(); i++)
+		particles.RemoveAt(toDelete[i]);
 }
 
 void Emitter::Render() const

@@ -2,8 +2,6 @@
 #include "../include/sprite.h"
 #include "../include/image.h"
 
-const double alphaTotal = 255;
-
 Particle::Particle() : Sprite(NULL)
 {
 	velocityx = velocityy = 0;
@@ -30,10 +28,13 @@ double Particle::GetLifetime() const
 
 void Particle::Update(double elapsed)
 {
-	MoveTo(GetX() + velocityx, GetY() + velocityy, velocityx, velocityy);
-	RotateTo(GetAngle() + angularVelocity, angularVelocity);
-	Sprite::Update(elapsed);
+	SetX(GetX() + velocityx * elapsed);
+	SetY(GetY() + velocityy * elapsed);
 	lifetime = lifetime - elapsed;
+
+	if (lifetime <= 0)
+		lifetime = 0;
+
 	if (autofade)
-		SetColor(GetRed(), GetGreen(), GetBlue(), alphaTotal * lifetime / initialLifetime);
+		SetColor(GetRed(), GetGreen(), GetBlue(), (uint8)(255 * lifetime/initialLifetime));
 }

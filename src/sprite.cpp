@@ -11,11 +11,10 @@
 Sprite::Sprite(Image* image) {
 	// TAREA: Implementar
 	this->image = image;
-	this->image->SetMidHandle();
 	x = y = z = 0;
 	colx = coly = 0;
-	colwidth = image->GetWidth();
-	colheight = image->GetHeight();
+	colwidth = 0;
+	colheight = 0;
 	angle = 0;
 	scalex = scaley = 1;
 	radius = 0;
@@ -140,7 +139,7 @@ void Sprite::Render() const {
     // TAREA: Implementar
 	Renderer::Instance().SetBlendMode(blendMode);
 	Renderer::Instance().SetColor(r, g, b, a);
-	Renderer::Instance().DrawImage(image, x, y, 0, colwidth * scalex, colheight * scaley, angle);
+	Renderer::Instance().DrawImage(image, x, y, 0, image->GetWidth() * scalex, image->GetHeight() * scaley, angle);
 }
 
 void Sprite::UpdateCollisionBox() {
