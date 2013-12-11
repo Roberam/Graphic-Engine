@@ -1,5 +1,6 @@
 #include "math.h"
 #include <math.h>
+#include <Windows.h>
 
 #define DEG2RAD 0.0174532925
 #define RAD2DEG 57.2957795
@@ -77,4 +78,9 @@ void OverlappingRect(double x1, double y1, double width1, double height1, double
 
 void TransformIsoCoords(double isoX, double isoY, double isoZ, double* screenX, double* screenY) {
 	// TAREA: Implementar funcion
+}
+
+double Random(const double min, const double max)
+{
+	return (double)(min + (max - min) * (float)rand() / RAND_MAX);
 }

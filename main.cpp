@@ -8,6 +8,10 @@ const uint16 screenY = 600;
 const uint16 midScreenX = screenX / 2;
 const uint16 midScreenY = screenY / 2;
 
+const String MOUSE_BUTTON_L = "MOUSE_BUTTON_LEFT";
+const String MOUSE_BUTTON_R = "MOUSE_BUTTON_RIGHT";
+
+/*
 const double backMoveX = 32;
 const double backMoveY = 32;
 const double backRelX = 0.8;
@@ -25,13 +29,40 @@ const String UP = "ARRIBA";
 const String DOWN = "ABAJO";
 const String LEFT = "IZQUIERDA";
 const String RIGHT = "DERECHA";
-
-uint16 Random(const uint16 min, const uint16 max)
-{
-	return (uint16)(min + (max - min) * (float)rand() / RAND_MAX);
-}
+*/
 
 int main(int argc, char* argv[]) {
+	Screen& screen = Screen::Instance();
+	const Renderer& render = Renderer::Instance();
+	ResourceManager& rm = ResourceManager::Instance();
+
+	screen.Open(screenX, screenY, false);
+	render.SetBlendMode(Renderer::BlendMode::ALPHA);
+	screen.Refresh();
+
+	Image* myImage = rm.LoadImage("data/star.png");
+	Scene myScene = Scene();
+	Sprite* mySprite = myScene.CreateSprite(myImage);
+	double mouseX = midScreenX;
+	double mouseY = midScreenY;
+	glfwSetMousePos(mouseX, mouseY);
+	mySprite->SetPosition(mouseX, mouseY);
+
+	InputManager myInput = InputManager();
+	myInput.CreateVirtualButton();
+	
+	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC) )
+	{
+		screen.Refresh();
+		myScene.Update(screen.ElapsedTime());
+	}
+
+	rm.FreeResources();
+
+	return 0;
+}
+
+/*
 	Screen& screen = Screen::Instance();
 	const Renderer& render = Renderer::Instance();
 	ResourceManager& rm = ResourceManager::Instance();
@@ -124,3 +155,4 @@ int main(int argc, char* argv[]) {
 	rm.FreeResources();
 	return 0;
 }
+*/
