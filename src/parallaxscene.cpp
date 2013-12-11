@@ -7,6 +7,8 @@
 
 ParallaxScene::ParallaxScene(Image* imageBack, Image* imageFron)
 {
+	backLayer = NULL;
+	frontLayer = NULL;
 	backLayer = imageBack;
 	frontLayer = imageFron;
 	backX = backY = frontX = frontY = 0;
@@ -56,13 +58,13 @@ void ParallaxScene::Update(double elapsed, Map* map)
 
 	if (backLayer)
 	{
-		backX = backX + autoBackSpeedX * elapsed;
-		backY = backY + autoBackSpeedY * elapsed;
+		backX = backX - autoBackSpeedX * elapsed;
+		backY = backY - autoBackSpeedY * elapsed;
 	}
 	if (frontLayer)
 	{
-		frontX = frontX + autoFrontSpeedX * elapsed;
-		frontY = frontY + autoFrontSpeedY * elapsed;
+		frontX = frontX - autoFrontSpeedX * elapsed;
+		frontY = frontY - autoFrontSpeedY * elapsed;
 	}
 }
 
