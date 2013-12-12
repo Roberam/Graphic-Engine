@@ -5,6 +5,8 @@
 #include "../include/array.h"
 #include "../include/math.h"
 
+#include "../include/affector.h"
+
 Emitter::Emitter(Image* image, bool autofade)
 {
 	this->image = image;
@@ -21,6 +23,14 @@ Emitter::Emitter(Image* image, bool autofade)
 	blendMode = Renderer::BlendMode::ALPHA;
 	emitting = false;
 	particles = Array<Particle>();
+
+	affectors = Array<Affector*>();
+}
+
+Emitter::~Emitter()
+{
+	for (uint32 i = 0; i < affectors.Size(); i++)
+		delete affectors[i];
 }
 
 void Emitter::SetPosition(double x, double y)
@@ -158,17 +168,30 @@ void Emitter::Update(double elapsed)
 		}
 	}
 
-	// Actualizamos la lista de particulas.
+	// Actualizamos la lista de particulas y la lista de afectores.
 	for (uint32 i = 0; i < particles.Size(); i++)
 	{
 		particles[i].Update(elapsed);
 		if (particles[i].GetLifetime() <= 0)
 			toDelete.Add(i);
+
+		for (uint32 i = 0; i < affectors.Size(); i++)
+			if ( affectors[i]->InRange(particles[i].GetX(), particles[i].GetY()) )
+				if ( !affectors[i]->IsAffecting(&particles[i]) )
+				{
+					ChangeParticle(affectors[i], &particles[i]);
+					affectors[i]->AddAffected(&particles[i]);
+				}
 	}
 
 	// Eliminamos las particulas cuyo lifetime haya expirado.
-	for (uint32 i = 0; i < toDelete.Size(); i++)
-		particles.RemoveAt(toDelete[i]);
+	for (uint32 i = toDelete.Size(); 0 < i; i--)
+	{
+		for (uint32 j = 0; j < affectors.Size(); j++)
+			if ( affectors[j]->IsAffecting(&particles[toDelete[i-1]]) )
+				affectors[j]->RemoveAffected(&particles[toDelete[i-1]]);
+		particles.RemoveAt(toDelete[i-1]);
+	}
 }
 
 void Emitter::Render() const
@@ -176,4 +199,31 @@ void Emitter::Render() const
 	Renderer::Instance().SetBlendMode(blendMode);
 	for (uint32 i = 0; i < particles.Size(); i++)
 		particles[i].Render();
+}
+
+Affector* Emitter::CreateAffector()
+{
+	affectors.Add(new Affector());
+	return affectors.Last();
+}
+
+void Emitter::DeleteAffector(Affector* affector)
+{
+	affectors.Remove(affector);
+	delete affector;
+}
+
+void Emitter::ChangeParticle(const Affector* affector, Particle* particle)
+{
+	double velx = affector->GetVelocityX();
+	double vely = affector->GetVelocityY();
+	double angvel = affector->GetAngularVelocity();
+	uint8 red = affector->GetRed();
+	uint8 green = affector->GetGreen();
+	uint8 blue = affector->GetBlue();
+
+	Particle newParticle = Particle((Image*)particle->GetImage(), velx, vely, angvel, particle->GetLifetime(), autofade);
+	newParticle.SetColor(red, green, blue);
+	newParticle.SetPosition(particle->GetX(), particle->GetY());
+	*particle = Particle(newParticle);
 }

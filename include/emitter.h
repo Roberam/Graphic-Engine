@@ -6,11 +6,14 @@
 #include "renderer.h"
 #include "array.h"
 #include "particle.h"
+#include "affector.h"
+#include "string.h"
 
 class Emitter
 {
 public:
 	Emitter(Image* image, bool autofade);
+	~Emitter();
 
 	virtual void SetPosition(double x, double y);
 	virtual void SetX(double x);
@@ -33,6 +36,9 @@ public:
 
 	virtual void Update(double elapsed);
 	virtual void Render() const;
+
+	virtual Affector* CreateAffector();
+	virtual void DeleteAffector(Affector*);
 private:
 	Image* image;
 	bool autofade;
@@ -49,6 +55,9 @@ private:
 
 	bool emitting;
 	Array<Particle> particles;
+
+	Array<Affector*> affectors;
+	void ChangeParticle(const Affector* affector, Particle* particle);
 };
 
 #endif
