@@ -4,10 +4,18 @@
 #include "types.h"
 #include "particle.h"
 
+enum AffectorMode
+{
+	ALL_ENABLE = 0,
+	VELOCITY = 1,
+	ANG_VEL = 2,
+	COLOR = 4
+};
+
 class Affector
 {
 public:
-	Affector();
+	Affector(const uint8 mode = ALL_ENABLE);
 	~Affector();
 
 	virtual void SetRange(const double x0, const double y0, const double x1, const double y1);
@@ -28,6 +36,8 @@ public:
 	virtual void AddAffected(Particle* p);
 	virtual void RemoveAffected(Particle* p);
 	virtual bool IsAffecting(Particle* p) const;
+
+	virtual uint8 GetMode() const { return mode; }
 private:
 	double x0, y0, x1, y1;
 	uint8 minr, maxr;
@@ -38,6 +48,7 @@ private:
 	double minvelang, maxvelang;
 
 	Array<Particle*> affected;
+	uint8 mode;
 };
 
 #endif

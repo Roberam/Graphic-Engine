@@ -37,7 +37,7 @@ public:
 	virtual void Update(double elapsed);
 	virtual void Render() const;
 
-	virtual Affector* CreateAffector();
+	virtual Affector* CreateAffector(uint8 mode);
 	virtual void DeleteAffector(Affector* affector);
 private:
 	Image* image;
@@ -55,7 +55,6 @@ private:
 
 	bool emitting;
 	Array<Particle*> particles;
-
 	Array<Affector*> affectors;
 };
 

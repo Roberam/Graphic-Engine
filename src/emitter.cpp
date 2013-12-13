@@ -4,7 +4,6 @@
 #include "../include/renderer.h"
 #include "../include/array.h"
 #include "../include/math.h"
-
 #include "../include/affector.h"
 
 Emitter::Emitter(Image* image, bool autofade)
@@ -23,7 +22,6 @@ Emitter::Emitter(Image* image, bool autofade)
 	blendMode = Renderer::BlendMode::ALPHA;
 	emitting = false;
 	particles = Array<Particle*>();
-
 	affectors = Array<Affector*>();
 }
 
@@ -179,9 +177,13 @@ void Emitter::Update(double elapsed)
 		{
 			if ( !affectors[j]->IsAffecting(particles[i]) && affectors[j]->InRange(particles[i]->GetX(), particles[i]->GetY()) )
 			{
-				particles[i]->SetAngVelocity(affectors[j]->GetAngularVelocity());
-				particles[i]->SetVelocity(affectors[j]->GetVelocityX(), affectors[j]->GetVelocityY());
-				particles[i]->SetColor(affectors[j]->GetRed(), affectors[j]->GetGreen(), affectors[j]->GetBlue(), particles[i]->GetAlpha());
+				if (affectors[j]->GetMode() & AffectorMode::ANG_VEL)
+					particles[i]->SetAngVelocity(affectors[j]->GetAngularVelocity());
+				if (affectors[j]->GetMode() & AffectorMode::VELOCITY)
+					particles[i]->SetVelocity(affectors[j]->GetVelocityX(), affectors[j]->GetVelocityY());
+				if (affectors[j]->GetMode() & AffectorMode::COLOR)
+					particles[i]->SetColor(	affectors[j]->GetRed(), affectors[j]->GetGreen(),
+											affectors[j]->GetBlue(), particles[i]->GetAlpha());
 				affectors[j]->AddAffected(particles[i]);
 			}
 		}
@@ -205,9 +207,9 @@ void Emitter::Render() const
 		particles[i]->Render();
 }
 
-Affector* Emitter::CreateAffector()
+Affector* Emitter::CreateAffector(uint8 mode)
 {
-	affectors.Add(new Affector);
+	affectors.Add(new Affector(mode));
 	return affectors.Last();
 }
 

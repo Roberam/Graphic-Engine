@@ -21,22 +21,23 @@ const uint8 colorMin = 0;
 const uint8 colorMax = 255;
 const bool autofade = true;
 
+const uint8 modeLeft = AffectorMode::ANG_VEL + AffectorMode::COLOR;
 const uint8 minRedLeft = 0;
 const uint8 minGreenLeft = 0;
 const uint8 minBlueLeft = 0;
 const uint8 maxRedLeft = 255;
 const uint8 maxGreenLeft = 255;
 const uint8 maxBlueLeft = 0;
+const double minvelangLeft = 0;
+const double maxvelangLeft = 360;
 
+const uint8 modeRight = AffectorMode::ANG_VEL + AffectorMode::COLOR;
 const uint8 minRedRight = 0;
 const uint8 minGreenRight = 0;
 const uint8 minBlueRight = 0;
 const uint8 maxRedRight = 0;
 const uint8 maxGreenRight = 255;
 const uint8 maxBlueRight = 255;
-
-const double minvelangLeft = 0;
-const double maxvelangLeft = 360;
 const double minvelangRight = 360;
 const double maxvelangRight = 720;
 
@@ -70,21 +71,17 @@ int main(int argc, char* argv[]) {
 	myEmitter->SetVelocityX(velMin, velMax);
 	myEmitter->SetVelocityY(velMin, velMax);
 
-	Affector* affectorLeft = myEmitter->CreateAffector();
+	Affector* affectorLeft = myEmitter->CreateAffector(modeLeft);
 	affectorLeft->SetAngularVelocity(minvelangLeft, maxvelangLeft);
 	affectorLeft->SetMaxColor(maxRedLeft, maxGreenLeft, maxBlueLeft);
 	affectorLeft->SetMinColor(minRedLeft, minGreenLeft, minBlueLeft);
 	affectorLeft->SetRange(0, 0, midScreenX, screenY);
-	affectorLeft->SetVelocityX(velMin, velMax);
-	affectorLeft->SetVelocityY(velMin, velMax);
 	
-	Affector* affectorRight = myEmitter->CreateAffector();
+	Affector* affectorRight = myEmitter->CreateAffector(modeRight);
 	affectorRight->SetAngularVelocity(minvelangRight, maxvelangRight);
 	affectorRight->SetMaxColor(maxRedRight, maxGreenRight, maxBlueRight);
 	affectorRight->SetMinColor(minRedRight, minGreenRight, minBlueRight);
 	affectorRight->SetRange(midScreenX + 1, 0, screenX, screenY);
-	affectorRight->SetVelocityX(velMin, velMax);
-	affectorRight->SetVelocityY(velMin, velMax);
 	
 	while ( screen.IsOpened() && !screen.KeyPressed(GLFW_KEY_ESC) )
 	{

@@ -4,15 +4,15 @@
 #include "../include/particle.h"
 #include "../include/image.h"
 
-Affector::Affector()
+Affector::Affector(const uint8 mode)
 {
 	x0 = y0 = x1 = y1 = 0;
 	minr = ming = minb = 0;
 	maxr = maxg = maxb = 0;
 	minvelx = maxvelx = minvely = maxvely = 0;
 	minvelang = maxvelang = 0;
-
 	affected = Array<Particle*>();
+	this->mode = mode;
 }
 
 Affector::~Affector()
@@ -32,7 +32,7 @@ void Affector::SetRange(const double x0, const double y0, const double x1, const
 
 void Affector::SetVelocityX(const double minvelx, const double maxvelx)
 {
-	if (minvelx <= maxvelx)
+	if (mode & VELOCITY && minvelx <= maxvelx)
 	{
 		this->minvelx = minvelx;
 		this->maxvelx = maxvelx;
@@ -41,7 +41,7 @@ void Affector::SetVelocityX(const double minvelx, const double maxvelx)
 
 void Affector::SetVelocityY(const double minvely, const double maxvely)
 {
-	if (minvely <= maxvely)
+	if (mode & VELOCITY && minvely <= maxvely)
 	{
 		this->minvely = minvely;
 		this->maxvely = maxvely;
@@ -50,7 +50,7 @@ void Affector::SetVelocityY(const double minvely, const double maxvely)
 
 void Affector::SetAngularVelocity(const double minvelang, const double maxvelang)
 {
-	if (minvelang <= maxvelang)
+	if (mode & ANG_VEL && minvelang <= maxvelang)
 	{
 		this->minvelang = minvelang;
 		this->maxvelang = maxvelang;
@@ -59,16 +59,22 @@ void Affector::SetAngularVelocity(const double minvelang, const double maxvelang
 
 void Affector::SetMinColor(const uint8 r, const uint8 g, const uint8 b)
 {
-	minr = r;
-	ming = g;
-	minb = b;
+	if (mode & COLOR)
+	{
+		minr = r;
+		ming = g;
+		minb = b;
+	}
 }
 
 void Affector::SetMaxColor(const uint8 r, const uint8 g, const uint8 b)
 {
-	maxr = r;
-	maxg = g;
-	maxb = b;
+	if (mode & COLOR)
+	{
+		maxr = r;
+		maxg = g;
+		maxb = b;
+	}
 }
 
 double Affector::GetVelocityX() const
