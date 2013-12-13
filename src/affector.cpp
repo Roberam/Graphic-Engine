@@ -120,14 +120,14 @@ void Affector::RemoveAffected(Particle* p)
 bool Affector::IsAffecting(Particle* p) const
 {
 	bool found = false;
-	uint32 index = 0;
+	uint32 i = 0;
 
-	while (!found && index < affected.Size())
+	while (!found && i < affected.Size())
 	{
-		if (affected[index] == p)
+		if (affected[i] == p)
 			found = true;
 		else
-			index++;
+			i++;
 	}
 
 	return found;

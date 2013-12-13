@@ -24,16 +24,16 @@ const bool autofade = true;
 const uint8 minRedLeft = 0;
 const uint8 minGreenLeft = 0;
 const uint8 minBlueLeft = 0;
-const uint8 maxRedLeft = 120;//255;
-const uint8 maxGreenLeft = 120;//255;
-const uint8 maxBlueLeft = 120;//0;
+const uint8 maxRedLeft = 255;
+const uint8 maxGreenLeft = 255;
+const uint8 maxBlueLeft = 0;
 
-const uint8 minRedRight = 180;//0;
-const uint8 minGreenRight = 180;//0;
-const uint8 minBlueRight = 180;//0;
-const uint8 maxRedRight = 255;//0;
-const uint8 maxGreenRight = 255;//255;
-const uint8 maxBlueRight = 255;//255;
+const uint8 minRedRight = 0;
+const uint8 minGreenRight = 0;
+const uint8 minBlueRight = 0;
+const uint8 maxRedRight = 0;
+const uint8 maxGreenRight = 255;
+const uint8 maxBlueRight = 255;
 
 const double minvelangLeft = 0;
 const double maxvelangLeft = 360;
@@ -77,12 +77,12 @@ int main(int argc, char* argv[]) {
 	affectorLeft->SetRange(0, 0, midScreenX, screenY);
 	affectorLeft->SetVelocityX(velMin, velMax);
 	affectorLeft->SetVelocityY(velMin, velMax);
-
+	
 	Affector* affectorRight = myEmitter->CreateAffector();
 	affectorRight->SetAngularVelocity(minvelangRight, maxvelangRight);
 	affectorRight->SetMaxColor(maxRedRight, maxGreenRight, maxBlueRight);
 	affectorRight->SetMinColor(minRedRight, minGreenRight, minBlueRight);
-	affectorRight->SetRange(midScreenX, 0, screenX, screenY);
+	affectorRight->SetRange(midScreenX + 1, 0, screenX, screenY);
 	affectorRight->SetVelocityX(velMin, velMax);
 	affectorRight->SetVelocityY(velMin, velMax);
 	
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 	{
 		// Actualizamos la pantalla y la escena.
 		screen.Refresh();
-		myScene.Update(0.005);//screen.ElapsedTime());
+		myScene.Update(screen.ElapsedTime());
 
 		// Actualizamos los movimientos.
 		mouseX = screen.GetMouseX();
@@ -104,8 +104,7 @@ int main(int argc, char* argv[]) {
 
 		// Mostramos por pantalla.
 		myScene.Render();
-		String title = "";
-		screen.SetTitle( title + "spriteX: " + String::FromFloat(mySprite->GetX()) + " - spriteY: " + String::FromFloat(mySprite->GetY()) );
+
 	}
 
 	rm.FreeResources();

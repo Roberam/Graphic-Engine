@@ -38,7 +38,7 @@ public:
 	virtual void Render() const;
 
 	virtual Affector* CreateAffector();
-	virtual void DeleteAffector(Affector*);
+	virtual void DeleteAffector(Affector* affector);
 private:
 	Image* image;
 	bool autofade;
@@ -54,10 +54,9 @@ private:
 	Renderer::BlendMode blendMode;
 
 	bool emitting;
-	Array<Particle> particles;
+	Array<Particle*> particles;
 
 	Array<Affector*> affectors;
-	void ChangeParticle(const Affector* affector, Particle* particle);
 };
 
 #endif

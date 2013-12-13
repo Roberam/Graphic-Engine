@@ -13,6 +13,9 @@ public:
 	virtual double GetLifetime() const;
 
 	virtual void Update(double elapsed);
+
+	void SetVelocity(double velx, double vely);
+	void SetAngVelocity(double angVelocity);
 private:
 	double velocityx, velocityy;
 	double angularVelocity;

@@ -30,11 +30,23 @@ void Particle::Update(double elapsed)
 {
 	SetX(GetX() + velocityx * elapsed);
 	SetY(GetY() + velocityy * elapsed);
+	SetAngle(GetAngle() + angularVelocity * elapsed);
 	lifetime = lifetime - elapsed;
 
 	if (lifetime <= 0)
 		lifetime = 0;
 
 	if (autofade)
-		SetColor(GetRed(), GetGreen(), GetBlue(), (uint8)(255 * lifetime/initialLifetime));
+		Sprite::SetColor(GetRed(), GetGreen(), GetBlue(), (uint8)(255 * lifetime/initialLifetime));
+}
+
+void Particle::SetVelocity(double velx, double vely)
+{
+	velocityx = velx;
+	velocityy = vely;
+}
+
+void Particle::SetAngVelocity(double angVelocity)
+{
+	angularVelocity = angVelocity;
 }
